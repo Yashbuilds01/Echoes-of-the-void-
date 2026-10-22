@@ -1,0 +1,11 @@
+# Echoes of the Void: Gravitational Wave Anomaly Mapping & Automated Transient Change-Point Detection
+# Dependencies for Streamlit Prototype
+
+streamlit>=1.30.0
+torch>=2.2.0
+scipy>=1.11.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+plotly>=5.18.0
+requests>=2.31.0
+pandas>=2.0.0
