@@ -522,7 +522,7 @@ with tab1:
                     y=freqs_q,
                     z=energy_q,
                     colorscale='Plasma',
-                    colorbar=dict(title='Normalized<br>Energy', titleside='right')
+                    colorbar=dict(title=dict(text='Normalized<br>Energy', side='right'))
                 )
             )
 
