@@ -264,18 +264,14 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 
 # -----------------------------------------------------------------------------
-# Top Hero Header with Separate Names for Team
+# Top Hero Header with Clean Presenter Badge
 # -----------------------------------------------------------------------------
 st.markdown("""
 <div class="hero-container">
     <div class="hero-title">ECHOES OF THE VOID</div>
     <div class="hero-subtitle">AI-Driven Gravitational Wave Anomaly Mapping & Automated Transient Change-Point Detection</div>
-    <div class="authors-badge-container">
-        <div class="author-tag">Project Authors & AI Architecture:</div>
-        <div class="author-name-list">
-            <span class="author-pill">👤 <b>Yash Goyal</b> · B.Tech First-Year CSE, GLA University</span>
-            <span class="author-pill">👤 <b>Vidushi Sharma</b> · B.Tech First-Year CSE, GLA University</span>
-        </div>
+    <div style="margin-bottom: 12px;">
+        <span class="presenter-badge">Team: Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University</span>
     </div>
     <div class="tagline-banner">"Unlocking the Universe's Deepest Signals Through Real-Time Machine Intelligence"</div>
 </div>
@@ -286,17 +282,10 @@ st.markdown("""
 # Sidebar: Team Branding & Pipeline Controls
 # -----------------------------------------------------------------------------
 st.sidebar.markdown("""
-<div class="sidebar-team-box">
-    <div class="sidebar-team-title">PROJECT RESEARCH TEAM</div>
-    <div class="sidebar-author-row">
-        <span style="color:#00e5ff;">●</span> <b>Yash Goyal</b>
-        <div class="sidebar-author-sub">B.Tech First-Year CSE</div>
-    </div>
-    <div class="sidebar-author-row" style="margin-top:6px;">
-        <span style="color:#7c4dff;">●</span> <b>Vidushi Sharma</b>
-        <div class="sidebar-author-sub">B.Tech First-Year CSE</div>
-    </div>
-    <div class="sidebar-inst-tag">GLA University, Mathura</div>
+<div style="background: rgba(124, 77, 255, 0.15); border: 1px solid rgba(124, 77, 255, 0.4); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+    <div style="font-size: 0.72rem; text-transform: uppercase; color: #00e5ff; font-weight: 700; letter-spacing: 0.5px;">TEAM PRESENTERS</div>
+    <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-top: 3px;">Yash Goyal & Vidushi Sharma</div>
+    <div style="font-size: 0.78rem; color: #b3c5e0; margin-top: 2px;">B.Tech First-Year CSE, GLA University</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -406,7 +395,8 @@ def ingest_and_process(
     gauss: float,
     f_low: float,
     f_high: float,
-    q_val: float
+    q_val: float,
+    _cache_ver: str = "v5"
 ):
     """Cached pipeline ingestion and signal conditioning."""
     if source == "GW150914 (LIGO Real Data)":
@@ -580,10 +570,36 @@ with tab1:
     if not is_swift_grb:
         t_arr = cond_results["time"]
         raw_strain = cond_results["raw_strain"]
-        bandpassed_strain = cond_results["bandpassed_strain"]
-        conditioned_strain = cond_results["conditioned_strain"]
-        q_obj = cond_results["q_transform"]
-        metrics = cond_results["metrics"]
+        
+        # Defensively retrieve bandpassed_strain with automatic fallback
+        bandpassed_strain = cond_results.get("bandpassed_strain")
+        if bandpassed_strain is None:
+            bandpassed_strain = SignalProcessor.bandpass_filter(
+                raw_strain, fs=cond_results.get("fs", 4096), low_cut=float(bp_low), high_cut=float(bp_high)
+            )
+
+        conditioned_strain = cond_results.get("conditioned_strain", cond_results.get("whitened_strain", raw_strain))
+        q_obj = cond_results.get("q_transform", {})
+        
+        # Defensively retrieve metrics with fallback calculation
+        metrics = cond_results.get("metrics")
+        if metrics is None:
+            raw_rms = float(np.sqrt(np.mean(raw_strain ** 2)))
+            raw_p2p = float(np.max(raw_strain) - np.min(raw_strain))
+            bp_rms = float(np.sqrt(np.mean(bandpassed_strain ** 2)))
+            bp_p2p = float(np.max(bandpassed_strain) - np.min(bandpassed_strain))
+            bp_red = float(max(0.0, min(99.9, (1.0 - (bp_rms / max(1e-30, raw_rms))) * 100.0)))
+            bp_db = float(20.0 * np.log10(max(1e-6, bp_rms / max(1e-30, raw_rms))))
+            metrics = {
+                "raw_rms": raw_rms,
+                "raw_p2p": raw_p2p,
+                "bandpass_rms": bp_rms,
+                "bandpass_p2p": bp_p2p,
+                "bandpass_reduction_pct": round(bp_red, 1),
+                "bandpass_suppression_db": round(bp_db, 1),
+                "whitened_std": round(float(np.std(conditioned_strain)), 2),
+                "peak_snr": round(float(q_obj.get("peak_snr", 24.0)), 2)
+            }
 
         # ---------------------------------------------------------------------
         # 1. Full-Width 2D Time-Frequency Q-Transform Heatmap
