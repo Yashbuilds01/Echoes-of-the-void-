@@ -1,7 +1,7 @@
 """
 Echoes of the Void: Gravitational Wave Anomaly Mapping & Automated Transient Change-Point Detection
 Streamlit Web Dashboard Prototype
-Presenter: Yash Goyal · B.Tech First-Year CSE, GLA University
+Presenter: Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University
 Tagline: "Unlocking the Universe's Deepest Signals Through Real-Time Machine Intelligence"
 """
 
@@ -182,7 +182,7 @@ st.markdown("""
     <div class="hero-title">ECHOES OF THE VOID</div>
     <div class="hero-subtitle">AI-Driven Gravitational Wave Anomaly Mapping & Automated Transient Change-Point Detection</div>
     <div>
-        <span class="presenter-badge">Yash Goyal · B.Tech First-Year CSE, GLA University</span>
+        <span class="presenter-badge">Team: Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University</span>
     </div>
     <div class="tagline-banner">"Unlocking the Universe's Deepest Signals Through Real-Time Machine Intelligence"</div>
 </div>
@@ -192,6 +192,14 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 # Sidebar: Pipeline Controls & Injection Synthesizer
 # -----------------------------------------------------------------------------
+st.sidebar.markdown("""
+<div style="background: rgba(124, 77, 255, 0.15); border: 1px solid rgba(124, 77, 255, 0.4); border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;">
+    <div style="font-size: 0.72rem; text-transform: uppercase; color: #00e5ff; font-weight: 700; letter-spacing: 0.5px;">Team Presenters</div>
+    <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-top: 2px;">Yash Goyal & Vidushi Sharma</div>
+    <div style="font-size: 0.78rem; color: #b3c5e0;">B.Tech First-Year CSE, GLA University</div>
+</div>
+""", unsafe_allow_html=True)
+
 st.sidebar.markdown("<h3 style='color:#00e5ff; margin-bottom:8px;'>🔭 Observational Controls</h3>", unsafe_allow_html=True)
 
 data_source = st.sidebar.selectbox(
@@ -841,6 +849,6 @@ st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #8c9eb5; font-size: 0.82rem; padding: 12px;">
     <b>Echoes of the Void</b> · Real-Time Gravitational Wave Anomaly Mapping & Transient Change-Point Pipeline<br>
-    Presenter: <b>Yash Goyal</b> · B.Tech First-Year CSE, GLA University · Built for Open Astrophysical Science
+    Team: <b>Yash Goyal & Vidushi Sharma</b> · B.Tech First-Year CSE, GLA University · Built for Open Astrophysical Science
 </div>
 """, unsafe_allow_html=True)

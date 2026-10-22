@@ -82,7 +82,7 @@ class AlertSystem:
             "alert_type": "INITIAL",
             "alert_id": alert_id,
             "pipeline": "Echoes of the Void (Real-Time PyTorch AI & BIC Pipeline)",
-            "author": "Yash Goyal (GLA University) / Echoes of the Void Automated Broker",
+            "author": "Yash Goyal & Vidushi Sharma (GLA University) / Echoes of the Void Automated Broker",
             "time_utc": timestamp_str,
             "trigger_classification": {
                 "primary": pred_class,
@@ -191,7 +191,7 @@ class AlertSystem:
 NUMBER:  {alert_id}
 SUBJECT: Echoes of the Void Real-Time Discovery: Gravitational-Wave Transient Detection
 DATE:    {timestamp}
-FROM:    Yash Goyal on behalf of the Echoes of the Void Collaboration (GLA University)
+FROM:    Yash Goyal & Vidushi Sharma on behalf of the Echoes of the Void Collaboration (GLA University)
 
 The 'Echoes of the Void' real-time machine intelligence pipeline identified a 
 high-significance gravitational wave candidate:

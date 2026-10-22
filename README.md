@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **"Unlocking the Universe's Deepest Signals Through Real-Time Machine Intelligence"**  
-> **Presenter:** Yash Goyal · B.Tech First-Year CSE, GLA University
+> **Project Authors:** Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University
 
 ---
 
@@ -125,7 +125,7 @@ Open your web browser at **`http://localhost:8501`**.
 
 1. **Header & Context:**
    - Dark cosmic aesthetic (`#0f0b1e`) matching modern astrophysics mission control interfaces.
-   - Presenter attribution: **Yash Goyal · B.Tech First-Year CSE, GLA University**.
+   - Presenter attribution: **Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University**.
 2. **Sidebar Controls:**
    - Ingest genuine LIGO/Virgo events (`GW150914`, `GW170817`, `GW190521`) or NASA Swift-XRT (`GRB 060218`).
    - Switch to **Live Synthetic Stream** to inject BBH chirps, BNS inspirals, non-Gaussian blip glitches, or irregular transients with adjustable SNR and environmental noise floors.
