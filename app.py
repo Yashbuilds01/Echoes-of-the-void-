@@ -627,7 +627,7 @@ with tab1:
                     x=1.015,
                     thickness=18,
                     len=0.92,
-                    pad=14,
+                    xpad=14,
                     tickfont=dict(color='#b3c5e0')
                 )
             )
