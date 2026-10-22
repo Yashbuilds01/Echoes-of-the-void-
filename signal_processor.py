@@ -4,6 +4,7 @@ Routines for:
 1. Zero-phase Butterworth Bandpass Filtering
 2. Frequency-domain Noise Whitening (Welch PSD estimation)
 3. High-Resolution Constant-Q / Wavelet Time-Frequency Spectrogram Engine (LIGO Omega Scan)
+4. Comprehensive 3-Stage Pipeline Diagnostics & Noise Suppression Metrics
 """
 
 import numpy as np
@@ -113,21 +114,6 @@ class SignalProcessor:
         """
         High-resolution 2D Time-Frequency Q-Transform Engine.
         Implements Morlet / sine-Gaussian multi-frequency filtering with constant quality factor Q.
-        
-        Parameters:
-        - strain: 1D strain array (preferably pre-whitened)
-        - time: 1D time array corresponding to strain samples
-        - fs: Sampling frequency in Hz
-        - q_value: Quality factor Q = f0 / delta_f (higher Q = finer frequency resolution)
-        - f_min, f_max: Frequency bounding box in Hz
-        - n_freqs: Number of logarithmically spaced frequency bins
-
-        Returns dictionary containing:
-        - times: 1D array of time coordinates (s)
-        - frequencies: 1D array of frequency coordinates (Hz)
-        - energy: 2D array (n_freqs, n_times) of normalized energy
-        - peak_energy: maximum normalized energy tile
-        - peak_snr: estimated peak SNR sqrt(max_energy)
         """
         n_samples = len(strain)
         freq_grid = np.geomspace(max(15.0, f_min), min(fs / 2.0 - 10.0, f_max), n_freqs)
@@ -136,7 +122,7 @@ class SignalProcessor:
         fft_freqs = np.fft.rfftfreq(n_samples, d=1.0 / fs)
         strain_fft = np.fft.rfft(strain)
 
-        # Downsample time grid for fast responsive rendering (<40ms)
+        # Downsample time grid for fast responsive rendering
         step = max(1, n_samples // 300)
         t_sub = time[::step]
         n_times = len(t_sub)
@@ -186,18 +172,38 @@ class SignalProcessor:
         q_value: float = 8.0
     ) -> Dict[str, Any]:
         """
-        Executes end-to-end signal conditioning:
-        1. Whiten raw strain
-        2. Zero-phase bandpass filter (30-400 Hz)
-        3. 2D Q-transform spectrogram generation
-        """
-        # Step 1: Whiten
-        whitened = cls.whiten(strain, fs=fs)
+        Executes end-to-end 3-stage signal conditioning:
+        - Step A: Raw Strain (unprocessed detector data)
+        - Step B: Bandpass Filtered Signal (30-400 Hz isolation)
+        - Step C: Spectral Whitened Signal (zero-mean, unit-variance strain)
+        - Step D: 2D Q-Transform Spectrogram Generation
         
-        # Step 2: Bandpass filter
-        conditioned = cls.bandpass_filter(whitened, fs=fs, low_cut=low_cut, high_cut=high_cut)
+        Returns all arrays plus live statistical reduction metrics.
+        """
+        # Step A: Raw stats
+        raw_rms = float(np.sqrt(np.mean(strain ** 2)))
+        raw_p2p = float(np.max(strain) - np.min(strain))
 
-        # Step 3: Q-Transform
+        # Step B: Direct Bandpass Filtering on Raw Strain
+        bandpassed = cls.bandpass_filter(strain, fs=fs, low_cut=low_cut, high_cut=high_cut)
+        bp_rms = float(np.sqrt(np.mean(bandpassed ** 2)))
+        bp_p2p = float(np.max(bandpassed) - np.min(bandpassed))
+        
+        # Out-of-band noise reduction percentage (seismic + laser noise rejected)
+        bp_reduction_pct = float(max(0.0, min(99.9, (1.0 - (bp_rms / max(1e-30, raw_rms))) * 100.0)))
+        bp_suppression_db = float(20.0 * np.log10(max(1e-6, bp_rms / max(1e-30, raw_rms))))
+
+        # Step C: Frequency-Domain Whitening on Filtered Signal
+        whitened = cls.whiten(strain, fs=fs)
+        conditioned = cls.bandpass_filter(whitened, fs=fs, low_cut=low_cut, high_cut=high_cut)
+        
+        # Whitened stats
+        white_rms = float(np.sqrt(np.mean(conditioned ** 2)))
+        white_std = float(np.std(conditioned))
+        white_mean = float(np.mean(conditioned))
+        peak_amp_sigma = float(np.max(np.abs(conditioned)))
+
+        # Step D: Q-Transform Spectrogram
         q_result = cls.q_transform(
             strain=conditioned,
             time=time,
@@ -207,11 +213,27 @@ class SignalProcessor:
             f_max=high_cut
         )
 
+        metrics = {
+            "raw_rms": raw_rms,
+            "raw_p2p": raw_p2p,
+            "bandpass_rms": bp_rms,
+            "bandpass_p2p": bp_p2p,
+            "bandpass_reduction_pct": round(bp_reduction_pct, 1),
+            "bandpass_suppression_db": round(bp_suppression_db, 1),
+            "whitened_rms": round(white_rms, 2),
+            "whitened_std": round(white_std, 2),
+            "whitened_mean": round(white_mean, 4),
+            "peak_amp_sigma": round(peak_amp_sigma, 2),
+            "peak_snr": round(q_result["peak_snr"], 2)
+        }
+
         return {
             "raw_strain": strain,
+            "bandpassed_strain": bandpassed,
             "whitened_strain": whitened,
             "conditioned_strain": conditioned,
             "time": time,
             "fs": fs,
+            "metrics": metrics,
             "q_transform": q_result
         }
