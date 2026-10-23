@@ -28,11 +28,26 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+st.markdown("""
+<style>
+    /* Hides the Streamlit top-right Deploy button and header bar elements */
+    .stAppHeader {
+        background-color: transparent !important;
+        visibility: visible !important;
+    }
+    
+    /* Targets the Deploy button container specifically */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Dark-mode Cosmic Purple/Navy Aesthetic (#0f0b1e)
 CUSTOM_CSS = """
 <style>
     /* Global Page Styling */
+    
     .stApp {
         background-color: #0f0b1e !important;
         color: #e0e6ed !important;
@@ -483,7 +498,7 @@ with col_m1:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-label">Target Stream</div>
-        <div class="metric-val" style="font-size:1.2rem;">{source_label}</div>
+        <div class="metric-val" style="font-size:1.3rem;">{source_label}</div>
         <div class="metric-sub">{data_source.split(' ')[0]}</div>
     </div>
     """, unsafe_allow_html=True)
