@@ -483,7 +483,7 @@ with col_m1:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-label">Target Stream</div>
-        <div class="metric-val" style="font-size:1.3rem;white-space: nowrap;">{source_label}</div>
+        <div class="metric-val" style="font-size:1.2rem;">{source_label}</div>
         <div class="metric-sub">{data_source.split(' ')[0]}</div>
     </div>
     """, unsafe_allow_html=True)
