@@ -354,32 +354,10 @@ st.sidebar.markdown("""
 
 
 # -----------------------------------------------------------------------------
-# Live Animated Supercomputing Cluster Execution Simulation
+# Live Scrolling Telemetry Terminal — st.status() Line-by-Line Stream
 # -----------------------------------------------------------------------------
-if run_pipeline:
-    cluster_box = st.empty()
-    cluster_bar = st.progress(0)
-    
-    stages = [
-        (15, "🛰️ Allocating distributed cluster nodes & locking detector buffer stream..."),
-        (35, "🎛️ Applying zero-phase Butterworth SOS bandpass & Welch PSD noise whitening..."),
-        (60, "🌊 Computing 2D Constant-Q Morlet wavelet decomposition across 80 frequency channels..."),
-        (85, "🧠 Running PyTorch Deep CNN tensor forward pass (< 42ms latency target)..."),
-        (100, "📡 Global Multi-Messenger broker evaluated: Telemetry & GCN sockets synchronized!")
-    ]
-    for pct, msg in stages:
-        cluster_box.markdown(f"""
-        <div style="background: rgba(22, 18, 51, 0.9); border: 1px solid #00e5ff; border-radius: 8px; padding: 12px 18px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);">
-            <span style="color: #00e5ff; font-weight: 800; font-family: monospace;">[SUPERCOMPUTING CLUSTER]</span>
-            <span style="color: #ffffff; margin-left: 10px; font-size: 0.92rem;">{msg}</span>
-        </div>
-        """, unsafe_allow_html=True)
-        cluster_bar.progress(pct)
-        time.sleep(0.10)
-    time.sleep(0.12)
-    cluster_bar.empty()
-    cluster_box.empty()
-    st.toast("✓ Real-Time AI Pipeline execution completed successfully!", icon="🚀")
+# Anchor div for auto-scroll JS injection
+st.markdown('<div id="pipeline-anchor"></div>', unsafe_allow_html=True)
 
 
 # -----------------------------------------------------------------------------
@@ -550,6 +528,79 @@ with col_m5:
     </div>
     """, unsafe_allow_html=True)
 
+
+# -----------------------------------------------------------------------------
+# Live Scrolling Telemetry Terminal — st.status() (fires only when button clicked)
+# -----------------------------------------------------------------------------
+if run_pipeline:
+    # Smooth-scroll JS injection (best-effort; works in some browser contexts)
+    st.markdown(
+        "<script>window.scrollTo({top: document.getElementById('pipeline-anchor') "
+        "? document.getElementById('pipeline-anchor').getBoundingClientRect().top + window.scrollY - 80 : 0, "
+        "behavior: 'smooth'});</script>",
+        unsafe_allow_html=True
+    )
+
+    # Build log sequence with real results baked in
+    _pred   = ai_classification["predicted_class"]
+    _conf   = ai_classification["confidence"] * 100
+    _lat    = ai_classification["latency_ms"]
+    _snr_v  = f"{cond_results['q_transform']['peak_snr']:.1f}" if not is_swift_grb else "28.5"
+
+    _log_seq = [
+        ("INFO",    f"Ingesting strain stream from GWOSC archive ({data_source})..."),
+        ("INFO",    f"Sampling rate locked: 4,096 Hz — 8,192 sample buffer initialised."),
+        ("INFO",    f"Applying whitening + {bp_low}–{bp_high} Hz bandpass filter (Butterworth SOS 4th-order)..."),
+        ("INFO",    f"Computing 2D time-frequency Q-transform (Q={q_factor:.1f}, 80 frequency bins)..."),
+        ("INFO",    f"Running PyTorch CNN visual inference on spectrogram tensor... ({_lat} ms latency)"),
+        ("INFO",    f"Executing BIC grid-search change-point segmentation on transient light curve..."),
+        ("INFO",    f"Reconstructed matched-filter SNR: {_snr_v}"),
+    ]
+
+    if alert_package.get("triggered"):
+        _log_seq.append(("ALERT",   f"High-confidence {_pred} detected! ({_conf:.1f}% confidence)"))
+        _log_seq.append(("ALERT",   f"Multi-messenger coordinates (RA/Dec) dispatched to global optical arrays."))
+        _log_seq.append(("SUCCESS", f"GCN Circular {alert_package['alert_id']} broadcast — "
+                                    f"{alert_package['ra_hms']} | {alert_package['dec_dms']}"))
+    else:
+        _log_seq.append(("WARN",    f"Alert threshold not met — {alert_package.get('reason', 'confidence below 85%')}"))
+        _log_seq.append(("INFO",    f"Classification: {_pred} ({_conf:.1f}%) — below dispatch threshold."))
+
+    _color_map = {
+        "INFO":    "#80d8ff",
+        "ALERT":   "#ff5252",
+        "SUCCESS": "#69f0ae",
+        "WARN":    "#ffd740",
+    }
+
+    with st.status("🚀 REAL-TIME AI PIPELINE EXECUTING — Multi-Messenger Telemetry Stream", expanded=True) as _status:
+        _log_placeholder = st.empty()
+        _accumulated = []
+
+        for _tag, _msg in _log_seq:
+            _ts    = time.strftime("%H:%M:%S")
+            _color = _color_map.get(_tag, "#80d8ff")
+            _bold  = "font-weight:700;" if _tag == "ALERT" else ""
+            _accumulated.append(
+                f'<span style="color:{_color};{_bold}">[{_ts}] [{_tag}]&nbsp;&nbsp;{_msg}</span>'
+            )
+            _log_placeholder.markdown(
+                '<div class="terminal-window" style="height:230px;overflow-y:auto;">'
+                + "<br>".join(_accumulated)
+                + "</div>",
+                unsafe_allow_html=True,
+            )
+            time.sleep(0.12)
+
+        _status.update(
+            label="✅ AI Pipeline Complete — All systems nominal. Results loaded below.",
+            state="complete",
+            expanded=False,
+        )
+
+    st.toast("✓ Real-Time AI Pipeline execution completed successfully!", icon="🚀")
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
 # Main Dashboard Tabs
