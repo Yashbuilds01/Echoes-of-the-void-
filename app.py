@@ -36,10 +36,10 @@ st.markdown("""
         visibility: visible !important;
     }
     
-    # /* Targets the Deploy button container specifically */
-    # [data-testid="stToolbar"] {
-    #     display: none !important;
-    # }
+    /* Targets the Deploy button container specifically */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
