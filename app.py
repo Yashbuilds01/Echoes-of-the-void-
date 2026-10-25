@@ -538,7 +538,7 @@ with col_m5:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-label">Multi-Messenger Status</div>
-        <div class="metric-val" style="color:{color_status}; font-size:1.35rem;">{alert_status}</div>
+        <div class="metric-val" style="color:{color_status}; font-size:1.35rem; white-space:nowrap;">{alert_status}</div>
         <div class="metric-sub">GCN / IVOA Broker</div>
     </div>
     """, unsafe_allow_html=True)
