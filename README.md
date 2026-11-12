@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **"Unlocking the Universe's Deepest Signals Through Real-Time Machine Intelligence"**  
-> **Project Authors:** Yash Goyal & Vidushi Sharma · B.Tech First-Year CSE, GLA University
+> **Project Authors:** Yash Goyal  
 
 ---
 
